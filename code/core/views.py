@@ -7,13 +7,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, View
 from django.shortcuts import redirect
 from django.utils import timezone
-from .forms import CheckoutForm,RefundForm, PaymentForm,  UpdateUserForm
-from .models import Item, OrderItem, Order, Address, Payment, Refund, UserProfile
+from .forms import CheckoutForm, PaymentForm,  UpdateUserForm, UpdateShippingAddressForm
+from .models import Item, OrderItem, Order, Address, Payment, UserProfile, Opinion
+from django.db.models import Q
 
 import random
 import string
 import stripe
-stripe.api_key = settings.STRIPE_SECRET_KEY
+stripe.api_key = 'sk_test_51M8N83LUQcNgnuxJ2XXhoqtj8ZuXggd9j8afnEAcm3MsmveoH3GooDxNE5gIygJ6RtfcLllQ0s8gghb42VYypeyh00oFdKLhAM'
 
 
 def create_ref_code():
@@ -25,17 +26,29 @@ def allProducts(request):
     }
     return render(request, "filter.html", context)
 
-def getProductsByCategories(request):
+def getProductsByCategories(request,category):
+    queryset = request.GET.get("search")
+    products = Item.objects.filter(category=category)
+    if queryset:
+        products = Item.objects.filter(
+            Q(title__icontains = queryset)
+        ).distinct
     context = {
-        'items': Item.object.filter(category="S")
+        'object_list': products 
     }
-    return render(request, "filter.html", context)
+    return render(request, "home.html", context)
 
 def products(request):
+    queryset = request.GET.get("search")
+    products = Item.objects.all()
+    if queryset:
+        products = Item.objects.filter(
+           Q(title__icontains = queryset)
+        ).distinct
     context = {
-        'items': Item.objects.all()
+        'object_list': products
     }
-    return render(request, "products.html", context)
+    return render(request, "home.html", context)
 
 
 def is_valid_form(values):
@@ -58,7 +71,40 @@ def profile(request):
         user_form = UpdateUserForm(instance=request.user)
     return render(request, 'profile.html', {'user_form': user_form})
 
-       
+@login_required
+def user_orders(request):
+    user = request.user
+    context = {
+        'orders' : Order.objects.filter(ordered = True,user=user)
+    }       
+    return render(request,'ordersByUser.html', context)
+
+def update_shipping_address(request, order_id):
+    if request.method == 'POST':
+        shipping_form = UpdateShippingAddressForm(request.POST)
+        
+        if shipping_form.is_valid():
+            try:
+                shipping_address = shipping_form.cleaned_data.get('shipping_address')
+                order = Order.objects.get(id=order_id)
+                shipping_address_model = order.shipping_address
+                shipping_address_model.street_address = shipping_address
+                shipping_address_model.save()
+                order.shipping_address = shipping_address_model
+                order.save()
+
+                messages.success(request, 'La dirección de envío ha sido actualizada con éxito')
+                return redirect('/user/orders')
+            except:
+                messages.error(request, 'La dirección no se ha podido modificar')
+                return redirect('/user/orders/%s/edit' %(order_id))
+    else:
+        shipping_form = UpdateShippingAddressForm()
+        context = {
+            'form' : shipping_form
+        }
+        return render(request,'updateAddressForm.html',context)
+
 
 @login_required
 def delete_user(request):
@@ -121,7 +167,7 @@ class CheckoutView(View):
                         order.save()
                     else:
                         messages.info(
-                            self.request, "No default shipping address available")
+                            self.request, "No existe dirección de envío por")
                         return redirect('core:checkout')
                 else:
                     print("User is entering a new shipping address")
@@ -155,7 +201,7 @@ class CheckoutView(View):
 
                     else:
                         messages.info(
-                            self.request, "Please fill in the required shipping address fields")
+                            self.request, "Por favor, completa los datos de la dirección de envío")
 
                 use_default_billing = form.cleaned_data.get(
                     'use_default_billing')
@@ -172,7 +218,7 @@ class CheckoutView(View):
                     order.save()
 
                 elif use_default_billing:
-                    print("Using the defualt billing address")
+                    print("Usando la dirección de facturación por defecto")
                     address_qs = Address.objects.filter(
                         user=self.request.user,
                         address_type='B',
@@ -184,7 +230,7 @@ class CheckoutView(View):
                         order.save()
                     else:
                         messages.info(
-                            self.request, "No default billing address available")
+                            self.request, "No existe dirección de facturación por defecto")
                         return redirect('core:checkout')
                 else:
                     print("User is entering a new billing address")
@@ -218,14 +264,16 @@ class CheckoutView(View):
 
                     else:
                         messages.info(
-                            self.request, "Please fill in the required billing address fields")
+                            self.request, "Por favor, rellena los datos de facturación")
+                        return redirect('core:checkout')
 
                 payment_option = form.cleaned_data.get('payment_option')
 
                 if payment_option == 'S':
                     return redirect('core:payment', payment_option='stripe')
-                elif payment_option == 'P':
-                    return redirect('core:payment', payment_option='paypal')
+                elif payment_option == 'C':
+                    messages.success(self.request, "Tu pedido fue un exito! Recibiras un correo con los datos del envío")
+                    return redirect('core:payment')
                 else:
                     messages.warning(
                         self.request, "Invalid payment option selected")
@@ -397,7 +445,6 @@ class ItemDetailView(DetailView):
     template_name = "product.html"
 
 
-@login_required
 def add_to_cart(request, slug):
     item = get_object_or_404(Item, slug=slug)
     order_item, created = OrderItem.objects.get_or_create(
@@ -427,7 +474,7 @@ def add_to_cart(request, slug):
         return redirect("core:order-summary")
 
 
-@login_required
+
 def remove_from_cart(request, slug):
     item = get_object_or_404(Item, slug=slug)
     order_qs = Order.objects.filter(
@@ -454,7 +501,7 @@ def remove_from_cart(request, slug):
         return redirect("core:product", slug=slug)
 
 
-@login_required
+
 def remove_single_item_from_cart(request, slug):
     item = get_object_or_404(Item, slug=slug)
     order_qs = Order.objects.filter(
@@ -483,48 +530,16 @@ def remove_single_item_from_cart(request, slug):
     else:
         messages.info(request, "You do not have an active order")
         return redirect("core:product", slug=slug)
-
-
-class RequestRefundView(View):
-    def get(self, *args, **kwargs):
-        form = RefundForm()
-        context = {
-            'form': form
-        }
-        return render(self.request, "request_refund.html", context)
-
-    def post(self, *args, **kwargs):
-        form = RefundForm(self.request.POST)
-        if form.is_valid():
-            ref_code = form.cleaned_data.get('ref_code')
-            message = form.cleaned_data.get('message')
-            email = form.cleaned_data.get('email')
-            # edit the order
-            try:
-                order = Order.objects.get(ref_code=ref_code)
-                order.refund_requested = True
-                order.save()
-
-                # store the refund
-                refund = Refund()
-                refund.order = order
-                refund.reason = message
-                refund.email = email
-                refund.save()
-
-                messages.info(self.request, "Your request was received.")
-                return redirect("core:request-refund")
-
-            except ObjectDoesNotExist:
-                messages.info(self.request, "This order does not exist.")
-                return redirect("core:request-refund")
-
-
-
-
-
-
-
+    
 
     
-    
+def condiciones(request):
+    context = {}
+    return render(request, "condiciones.html", context)
+
+@login_required
+def opinions(request):
+    context = {
+        'opinions' : Opinion.objects.all()
+    }       
+    return render(request,'opinions.html', context)

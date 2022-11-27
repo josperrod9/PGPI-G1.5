@@ -9,14 +9,13 @@ from .views import (
     remove_from_cart,
     remove_single_item_from_cart,
     PaymentView,
-    RequestRefundView,
     
 )
 
 app_name = 'core'
 
 urlpatterns = [
-    path('', HomeView.as_view(), name='home'),
+    path('', views.products, name='home'),
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('order-summary/', OrderSummaryView.as_view(), name='order-summary'),
     path('product/<slug>/', ItemDetailView.as_view(), name='product'),
@@ -25,10 +24,13 @@ urlpatterns = [
     path('remove-item-from-cart/<slug>/', remove_single_item_from_cart,
          name='remove-single-item-from-cart'),
     path('payment/<payment_option>/', PaymentView.as_view(), name='payment'),
-    path('request-refund/', RequestRefundView.as_view(), name='request-refund'),
     path('allproducts/',views.allProducts),
-    path('category/',views.getProductsByCategories),
+    path('products/<str:category>/',views.getProductsByCategories),
     path('profile/',views.profile),
-    path('deleteuser/',views.delete_user)
+    path('deleteuser/',views.delete_user),
+    path('user/orders/' ,views.user_orders ,name='orders'),
+    path('user/orders/<int:order_id>/edit' ,views.update_shipping_address ,name='updateOrder'),
+    path('condiciones/' ,views.condiciones,name='condiciones'),
+    path('opinions/' ,views.opinions,name='opinions')
     
 ]

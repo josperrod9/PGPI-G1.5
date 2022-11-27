@@ -7,7 +7,7 @@ from django_countries.fields import CountryField
 
 
 CATEGORY_CHOICES = (
-    ('S', 'Frutería'),
+    ('S', 'Fruteria'),
     ('SW', 'Pescaderia'),
     ('OW', 'Carniceria')
 )
@@ -90,8 +90,7 @@ class Order(models.Model):
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     being_delivered = models.BooleanField(default=False)
     received = models.BooleanField(default=False)
-    refund_requested = models.BooleanField(default=False)
-    refund_granted = models.BooleanField(default=False)
+
 
     '''
     1. Item added to cart
@@ -101,7 +100,6 @@ class Order(models.Model):
     (Preprocessing, processing, packaging etc.)
     4. Being delivered
     5. Received
-    6. Refunds
     '''
 
     def __str__(self):
@@ -141,17 +139,21 @@ class Payment(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+class Response(models.Model):
+    description = models.CharField(max_length=100)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
 
-
-class Refund(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    reason = models.TextField()
-    accepted = models.BooleanField(default=False)
-    email = models.EmailField()
-
-    def __str__(self):
-        return f"{self.pk}"
-
+class Opinion(models.Model):
+    title = models.CharField(max_length = 20)
+    description = models.CharField(max_length = 100)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    responses = models.ForeignKey('Response', related_name='response', on_delete=models.SET_NULL, blank=True, null=True)
+    
+    def get_absolute_url(self):
+        return '/opinion/%s' %(self.id)
 
 def userprofile_receiver(sender, instance, created, *args, **kwargs):
     if created:

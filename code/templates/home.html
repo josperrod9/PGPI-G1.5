@@ -3,10 +3,9 @@
 {% block content %}
 <main>
     <div class="container">
-<!--
         <nav class="navbar navbar-expand-lg navbar-dark green lighten-1 mt-3 mb-5">
 
-            <span class="navbar-brand">Categories:</span>
+            <span class="navbar-brand">Categorías:</span>
 
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
                 aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,29 +16,26 @@
 
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/allproducts">All</a>
+                        <a class="nav-link" href="/">Todos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="category/">Fruits</a>
+                        <a class="nav-link" href="/products/S/">Frutería</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Vegetables</a>
+                        <a class="nav-link" href="/products/SW/">Pescaderia</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Spices</a>
+                        <a class="nav-link" href="/products/OW/">Carniceria</a>
                     </li>
-
                 </ul>
 
-                <form class="form-inline">
+                <form class="form-inline" method="GET">
                     <div class="md-form my-0">
-                        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                        <input class="form-control mr-sm-2" type="text" placeholder="Buscar producto" aria-label="Buscar producto" name="search">
                     </div>
                 </form>
             </div>
-            Collapsible content 
-
-        </nav>-->
+        </nav>
         <!--/.Navbar-->
 
         <!--Section: Products v.3-->
