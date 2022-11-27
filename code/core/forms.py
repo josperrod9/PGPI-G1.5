@@ -9,7 +9,10 @@ PAYMENT_CHOICES = (
     ('C', 'Contrareembolso')
 )
 
+
 class CheckoutForm(forms.Form):
+    email = forms.EmailField(required=True,
+                             widget=forms.TextInput(attrs={'class': 'form-control'}))
     shipping_address = forms.CharField(required=False)
     shipping_address2 = forms.CharField(required=False)
     shipping_country = CountryField(blank_label='(select country)').formfield(
@@ -54,3 +57,11 @@ class UpdateUserForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['username', 'email']
+
+class OpinionCreateForm(forms.Form):
+    title = forms.CharField(required=True, label='Título', max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    description = forms.CharField(required=True, label='Descripción',max_length=200, widget=forms.Textarea(attrs={'class': 'form-control'}))
+    
+
+class ResponseCreateForm(forms.Form):
+    description = forms.CharField(required=True, label='Ponga aqui su respuesta', max_length=200, widget=forms.Textarea(attrs={'class': 'form-control'}))

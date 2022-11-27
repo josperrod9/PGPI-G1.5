@@ -90,7 +90,7 @@
             </div>
             <hr>
 
-            <h3>Opciones de pago</h3>
+            <h3>Opciones de pago y correo electrónico</h3>
 
             <div class="d-block my-3">
               {% for value, name in form.fields.payment_option.choices %}
@@ -100,6 +100,8 @@
                 <label class="custom-control-label" for="{{ name }}">{{ name }}</label>
               </div>
               {% endfor %}
+              <input type="text" class="form-control" name="email" id="mce-EMAIL"
+              placeholder="Enter your email" required="required">
             </div>
 
             <hr class="mb-4">

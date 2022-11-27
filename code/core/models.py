@@ -59,7 +59,7 @@ class Item(models.Model):
 
 class OrderItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
+                             on_delete=models.CASCADE, blank=True, null=True)
     ordered = models.BooleanField(default=False)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
@@ -76,7 +76,7 @@ class OrderItem(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
+                             on_delete=models.CASCADE, blank=True, null=True)
     ref_code = models.CharField(max_length=20, blank=True, null=True)
     items = models.ManyToManyField(OrderItem)
     start_date = models.DateTimeField(auto_now_add=True)
@@ -90,6 +90,8 @@ class Order(models.Model):
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     being_delivered = models.BooleanField(default=False)
     received = models.BooleanField(default=False)
+    payment_type = models.BooleanField(default=False)
+    email = models.EmailField(max_length=254, blank=True)
 
 
     '''
@@ -144,16 +146,17 @@ class Response(models.Model):
     description = models.CharField(max_length=100)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
+    opinion = models.ForeignKey('Opinion', related_name='opinion', on_delete=models.CASCADE, blank=True, null=True)                         
 
 class Opinion(models.Model):
     title = models.CharField(max_length = 20)
     description = models.CharField(max_length = 100)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
-    responses = models.ForeignKey('Response', related_name='response', on_delete=models.SET_NULL, blank=True, null=True)
+    
     
     def get_absolute_url(self):
-        return '/opinion/%s' %(self.id)
+        return '/opinions/%s' %(self.id)
 
 def userprofile_receiver(sender, instance, created, *args, **kwargs):
     if created:

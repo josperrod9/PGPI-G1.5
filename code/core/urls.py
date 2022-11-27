@@ -31,6 +31,9 @@ urlpatterns = [
     path('user/orders/' ,views.user_orders ,name='orders'),
     path('user/orders/<int:order_id>/edit' ,views.update_shipping_address ,name='updateOrder'),
     path('condiciones/' ,views.condiciones,name='condiciones'),
-    path('opinions/' ,views.opinions,name='opinions')
-    
+    path('opinions/' ,views.opinions,name='opinions'),
+    path('send/', views.Send.as_view(), name='send'),
+    path('opinions/<int:opinion_id>/', views.opinions_details,name="opinionDetails"),
+    path('opinions/create/', views.create_opinion,name="opinionCreate"),
+    path('opinions/<int:opinion_id>/addResponse/', views.createResponse,name="responseCreate")  
 ]

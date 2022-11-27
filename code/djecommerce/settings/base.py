@@ -13,8 +13,7 @@ DB_HOST = "localhost"
 STRIPE_LIVE_PUBLIC_KEY = "your-live-public-key"
 STRIPE_LIVE_SECRET_KEY = "your-live-secret-key"
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ACCOUNT_EMAIL_VERIFICATION = "none"
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -90,3 +89,16 @@ LOGIN_REDIRECT_URL = '/'
 # CRISPY FORMS
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'giraldillo99@gmail.com'
+EMAIL_HOST_PASSWORD = 'npkeqgaskucvityv'
+

@@ -15,7 +15,7 @@
         <table class="table">
             <thead>
                 <tr>
-                  <th scope="col">Id del pedido</th>
+                  <th scope="col">Número de referencia</th>
                   <th scope="col">Fecha de realización de pedido</th>
                   <th scope="col">Dirección de envío</th>
                   <th scope="col">Estado del pedido</th>
@@ -25,7 +25,7 @@
               <tbody>
                 {% for order in orders%}
                 <tr>
-                  <th scope="row">{{ order.id }}</th>
+                  <th scope="row">{{ order.ref_code }}</th>
                   <td>{{ order.ordered_date }}</td>
                   <td>{{ order.shipping_address.street_address }}</td>
                   {% if order.received %}
