@@ -340,42 +340,48 @@ class PaymentView(View):
         userprofile = UserProfile.objects.get(user=usuario)
         if form.is_valid():
             if order.payment_type:
-                payment = Payment()
-                payment.user = usuario
-                payment.amount = order.get_total()
-                payment.save()
+                try:
+                    payment = Payment()
+                    payment.user = usuario
+                    payment.amount = order.get_total()
+                    payment.save()
 
-                # assign the payment to the order
+                    # assign the payment to the order
 
-                order_items = order.items.all()
-                order_items.update(ordered=True)
-                for item in order_items:
-                    item.save()
+                    order_items = order.items.all()
+                    order_items.update(ordered=True)
+                    for item in order_items:
+                        item.save()
 
-                order.ordered = True
-                order.payment = payment
-                order.ref_code = create_ref_code()
-                order.save()
-                email = order.email
-                print(email)
+                    order.ordered = True
+                    order.payment = payment
+                    order.ref_code = create_ref_code()
+                    order.save()
+                    email = order.email
+                    print(email)
 
-                template = get_template('email-order-success.html')
+                    template = get_template('email-order-success.html')
 
-                # Se renderiza el template y se envias parametros
-                content = template.render({'email': email,'order': order})
+                    # Se renderiza el template y se envias parametros
+                    content = template.render({'email': email,'order': order})
 
-                # Se crea el correo (titulo, mensaje, emisor, destinatario)
-                msg = EmailMultiAlternatives(
-                    'Gracias por tu compra',
-                    'Hola, te enviamos un correo con tu factura',
-                    settings.EMAIL_HOST_USER,
-                    [email]
-                )
+                    # Se crea el correo (titulo, mensaje, emisor, destinatario)
+                    msg = EmailMultiAlternatives(
+                        'Gracias por tu compra',
+                        'Hola, te enviamos un correo con tu factura',
+                        settings.EMAIL_HOST_USER,
+                        [email]
+                    )
 
-                msg.attach_alternative(content, 'text/html')
-                msg.send()
-                messages.success(self.request, "Tu pedido fue un exito! Recibirás un correo con los datos del envío, tu numero de referencia del pedido es " + order.ref_code)
-                return redirect("/")
+                    msg.attach_alternative(content, 'text/html')
+                    msg.send()
+                    messages.success(self.request, "Tu pedido fue un exito! Recibirás un correo con los datos del envío, tu numero de referencia del pedido es " + order.ref_code)
+                    return redirect("/")
+                except Exception as e:
+                    # send an email to ourselves
+                    messages.warning(
+                        self.request, "A serious error occurred. We have been notifed.")
+                    return redirect("/")
             else:
                 token = form.cleaned_data.get('stripeToken')
                 save = form.cleaned_data.get('save')
