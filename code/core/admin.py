@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.sites.models import Site
 
 from .models import Item, OrderItem, Order, Payment, Address, UserProfile, Response, Opinion
 
@@ -46,6 +47,7 @@ admin.site.register(OrderItem)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Payment)
 admin.site.register(Address, AddressAdmin)
-admin.site.register(UserProfile)
 admin.site.register(Opinion)
 admin.site.register(Response)
+admin.site.unregister(Site)
+

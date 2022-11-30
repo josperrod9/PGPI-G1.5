@@ -12,6 +12,11 @@ CATEGORY_CHOICES = (
     ('OW', 'Carniceria')
 )
 
+DISPONIBILITY_CHOICES = (
+    ('D', 'Disponible'),
+    ('ND', 'No disponible')
+)
+
 
 ADDRESS_CHOICES = (
     ('B', 'Billing'),
@@ -37,6 +42,8 @@ class Item(models.Model):
     slug = models.SlugField()
     description = models.TextField()
     image = models.ImageField()
+    disponibility = models.CharField(choices=DISPONIBILITY_CHOICES, max_length=2,null=True)
+    selected = models.BooleanField(default = False)
 
     def __str__(self):
         return self.title

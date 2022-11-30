@@ -27,6 +27,17 @@
               <a href="">
                 <span class="badge purple mr-1">{{ object.get_category_display }}</span>
               </a>
+              <br>
+              <br>
+              {% if object.get_disponibility_display == "Disponible" %}
+              <a href="">
+                <span class="badge green mr-1">{{ object.get_disponibility_display }}</span>
+              </a>
+              {% else %}
+              <a href="">
+                <span class="badge red mr-1">{{ object.get_disponibility_display }}</span>
+              </a>
+              {% endif %}
             </div>
 
             <p class="lead">
@@ -44,15 +55,22 @@
 
             <p>{{ object.description }}</p>
 
+            
             {% comment %} <form class="d-flex justify-content-left">
+              
               <!-- Default input -->
               <input type="number" value="1" aria-label="Search" class="form-control" style="width: 100px">
+
+              
               <button class="btn btn-primary btn-md my-0 p" type="submit">
                 Añadir al carrito
                 <i class="fas fa-shopping-cart ml-1"></i>
               </button>
+              
 
             </form> {% endcomment %}
+
+            {% if object.get_disponibility_display == "Disponible" %}
             <a href="{{ object.get_add_to_cart_url }}" class="btn btn-primary btn-md my-0 p">
               Añadir al carrito
               <i class="fas fa-shopping-cart ml-1"></i>
@@ -60,6 +78,9 @@
             <a href="{{ object.get_remove_from_cart_url }}" class="btn btn-danger btn-md my-0 p">
               Eliminar del carrito
             </a>
+            {% else %}
+              <span>Producto no disponible</span>
+            {% endif %}
 
           </div>
           <!--Content-->

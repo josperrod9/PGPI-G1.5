@@ -15,7 +15,8 @@ from .views import (
 app_name = 'core'
 
 urlpatterns = [
-    path('', views.products, name='home'),
+    path('', views.products_selected, name='home'),
+    path('all-products/', views.products, name='products'),
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('order-summary/', OrderSummaryView.as_view(), name='order-summary'),
     path('product/<slug>/', ItemDetailView.as_view(), name='product'),
@@ -31,9 +32,12 @@ urlpatterns = [
     path('user/orders/' ,views.user_orders ,name='orders'),
     path('user/orders/<int:order_id>/edit' ,views.update_shipping_address ,name='updateOrder'),
     path('condiciones/' ,views.condiciones,name='condiciones'),
+    path('politica/' ,views.politica,name='politica'),
     path('opinions/' ,views.opinions,name='opinions'),
     path('send/', views.Send.as_view(), name='send'),
     path('opinions/<int:opinion_id>/', views.opinions_details,name="opinionDetails"),
     path('opinions/create/', views.create_opinion,name="opinionCreate"),
-    path('opinions/<int:opinion_id>/addResponse/', views.createResponse,name="responseCreate")  
+    path('opinions/<int:opinion_id>/addResponse/', views.createResponse,name="responseCreate"),
+    path('orders/' ,views.getOrderByRefCode ,name='ordersByRefCode')
+
 ]

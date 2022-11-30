@@ -14,15 +14,16 @@
                         <img src="{{ item.image.url }}" class="card-img-top" alt="...">
                         <div class="card-body">
 
-                            <div class="mask rgba-white-slight"></div>
+                    
 
 
                             <h5>{{ item.get_category_display }}</h5>
-
+                         
                             <strong>
                                 <a href="{{ item.get_absolute_url }}" class="dark-grey-text">{{ item.title }}
                                 </a>
                             </strong>
+                            
                             <p class="card-text">€
                                 {{ item.price }}
                             </p>

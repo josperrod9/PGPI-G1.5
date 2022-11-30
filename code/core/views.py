@@ -29,6 +29,13 @@ def allProducts(request):
     }
     return render(request, "filter.html", context)
 
+def products_selected(request):
+    context = {
+        'object_list': Item.objects.filter(selected=True)
+    }
+    messages.info(request, "Aviso de privacidad: Este sitio no utiliza cookies, no registraremos tus datos")
+    return render(request, "home.html", context)
+
 def getProductsByCategories(request,category):
     queryset = request.GET.get("search")
     products = Item.objects.filter(category=category)
@@ -40,6 +47,15 @@ def getProductsByCategories(request,category):
         'object_list': products 
     }
     return render(request, "home.html", context)
+
+
+def getOrderByRefCode(request):
+    queryset = request.GET.get("ref_code")
+    orders = Order.objects.filter(ref_code = queryset)
+    context = {
+        'orders': orders
+    }
+    return render(request, "ordersByUser.html", context)
 
 def products(request):
     queryset = request.GET.get("search")
@@ -83,7 +99,7 @@ def user_orders(request):
     }       
     return render(request,'ordersByUser.html', context)
 
-@login_required
+ 
 def update_shipping_address(request, order_id):
     if request.method == 'POST':
         shipping_form = UpdateShippingAddressForm(request.POST)
@@ -123,7 +139,7 @@ class CheckoutView(View):
         if self.request.user.is_authenticated:
             usuario = self.request.user
         else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
         try:
             order = Order.objects.get(user=usuario, ordered=False)
             form = CheckoutForm()
@@ -152,14 +168,14 @@ class CheckoutView(View):
 
             return render(self.request, "checkout.html", context)
         except ObjectDoesNotExist:
-            messages.info(self.request, "You do not have an active order")
+            messages.info(self.request, "No puedes realizar la acción seleccionada, no esta activa")
             return redirect("core:checkout")
 
     def post(self, *args, **kwargs):
         if self.request.user.is_authenticated:
             usuario = self.request.user
         else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
         form = CheckoutForm(self.request.POST or None)
         try:
             order = Order.objects.get(user=usuario, ordered=False)
@@ -167,7 +183,7 @@ class CheckoutView(View):
                 use_default_shipping = form.cleaned_data.get(
                     'use_default_shipping')
                 if use_default_shipping:
-                    print("Using the defualt shipping address")
+                    print("Usando dirección de facturación por defecto")
                     address_qs = Address.objects.filter(
                         user=usuario,
                         address_type='S',
@@ -291,10 +307,10 @@ class CheckoutView(View):
                     return redirect('core:payment', payment_option='Contrareembolso')
                 else:
                     messages.warning(
-                        self.request, "Invalid payment option selected")
+                        self.request, "Opción de pago seleccionada incorrecta")
                     return redirect('core:checkout')
         except ObjectDoesNotExist:
-            messages.warning(self.request, "You do not have an active order")
+            messages.warning(self.request, "No puedes realizar la acción seleccionada, no está activa")
             return redirect("core:order-summary")
 
 
@@ -303,7 +319,7 @@ class PaymentView(View):
         if self.request.user.is_authenticated:
             usuario = self.request.user
         else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
         order = Order.objects.get(user=usuario, ordered=False)
         if order.billing_address:
             context = {
@@ -327,14 +343,14 @@ class PaymentView(View):
             return render(self.request, "payment.html", context)
         else:
             messages.warning(
-                self.request, "You have not added a billing address")
+                self.request, "No has añadido dirección de facturación")
             return redirect("core:checkout")
 
     def post(self, *args, **kwargs):
         if self.request.user.is_authenticated:
             usuario = self.request.user
         else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
         order = Order.objects.get(user=usuario, ordered=False)
         form = PaymentForm(self.request.POST)
         userprofile = UserProfile.objects.get(user=usuario)
@@ -375,12 +391,12 @@ class PaymentView(View):
 
                     msg.attach_alternative(content, 'text/html')
                     msg.send()
-                    messages.success(self.request, "Tu pedido fue un exito! Recibirás un correo con los datos del envío, tu numero de referencia del pedido es " + order.ref_code)
+                    messages.success(self.request, "Tu pedido fue un exito! Recibirás un correo con los datos del envío, tu número de referencia del pedido es " + order.ref_code)
                     return redirect("/")
                 except Exception as e:
                     # send an email to ourselves
                     messages.warning(
-                        self.request, "A serious error occurred. We have been notifed.")
+                        self.request, "Ha ocurrido un problema grave. Hemos registado la incidencia")
                     return redirect("/")
             else:
                 token = form.cleaned_data.get('stripeToken')
@@ -458,7 +474,7 @@ class PaymentView(View):
 
                     msg.attach_alternative(content, 'text/html')
                     msg.send()
-                    messages.success(self.request, "Tu pedido fue un exito! Recibirás un correo con los datos del envío, tu numero de referencia del pedido es " + order.ref_code)
+                    messages.success(self.request, "Tu pedido fue un exito! Recibirás un correo con los datos del envío, tu número de referencia del pedido es " + order.ref_code)
                     return redirect("/")
 
                 except stripe.error.CardError as e:
@@ -493,13 +509,13 @@ class PaymentView(View):
                     # Display a very generic error to the user, and maybe send
                     # yourself an email
                     messages.warning(
-                        self.request, "Something went wrong. You were not charged. Please try again.")
+                        self.request, "Algo ha ido mal, no se le ha cobrado. Por favor inténtelo de nuevo")
                     return redirect("/")
 
                 except Exception as e:
                     # send an email to ourselves
                     messages.warning(
-                        self.request, "A serious error occurred. We have been notifed.")
+                        self.request, "Ha ocurrido un problema grave. Hemos registrado la incidencia ")
                     return redirect("/")
 
         messages.warning(self.request, "Invalid data received")
@@ -517,7 +533,7 @@ class OrderSummaryView(View):
         if self.request.user.is_authenticated:
             usuario = self.request.user
         else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
         try:
             order = Order.objects.get(user=usuario, ordered=False)
             context = {
@@ -525,7 +541,7 @@ class OrderSummaryView(View):
             }
             return render(self.request, 'order_summary.html', context)
         except ObjectDoesNotExist:
-            messages.warning(self.request, "You do not have an active order")
+            messages.warning(self.request, "No tienes activo la orden")
             return redirect("/")
 
 
@@ -538,7 +554,7 @@ def add_to_cart(request, slug):
         if request.user.is_authenticated:
             usuario = request.user
         else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
   
         item = get_object_or_404(Item, slug=slug)
         order_item, created = OrderItem.objects.get_or_create(
@@ -553,18 +569,18 @@ def add_to_cart(request, slug):
             if order.items.filter(item__slug=item.slug).exists():
                 order_item.quantity += 1
                 order_item.save()
-                messages.info(request, "The Item has been updated.")
+                messages.info(request, "El objeto ha sido actualizado.")
                 return redirect("core:order-summary")
             else:
                 order.items.add(order_item)
-                messages.info(request, "This item was added to your cart.")
+                messages.info(request, "El objeto ha sido añadido a tu carrito")
                 return redirect("core:order-summary")
         else:
             ordered_date = timezone.now()
             order = Order.objects.create(
                 user=usuario, ordered_date=ordered_date)
             order.items.add(order_item)
-            messages.info(request, "This item was added to your cart.")
+            messages.info(request, "El objeto ya estaba añadido en tu carrito")
             return redirect("core:order-summary")
    
 
@@ -573,7 +589,7 @@ def remove_from_cart(request, slug):
     if request.user.is_authenticated:
             usuario = request.user
     else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
     item = get_object_or_404(Item, slug=slug)
     order_qs = Order.objects.filter(
         user=usuario,
@@ -589,13 +605,13 @@ def remove_from_cart(request, slug):
                 ordered=False
             )[0]
             order.items.remove(order_item)
-            messages.info(request, "This item was removed from your cart.")
+            messages.info(request, "El objeto ha sido borrado de tu carrito")
             return redirect("core:order-summary")
         else:
-            messages.info(request, "This item was not in your cart")
+            messages.info(request, "Este objeto no estaba en tu cesta")
             return redirect("core:product", slug=slug)
     else:
-        messages.info(request, "You do not have an active order")
+        messages.info(request, "No tienes ningún pedido activo")
         return redirect("core:product", slug=slug)
 
 
@@ -604,7 +620,7 @@ def remove_single_item_from_cart(request, slug):
     if request.user.is_authenticated:
             usuario = request.user
     else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
     item = get_object_or_404(Item, slug=slug)
     order_qs = Order.objects.filter(
         user=usuario,
@@ -624,13 +640,13 @@ def remove_single_item_from_cart(request, slug):
                 order_item.save()
             else:
                 order.items.remove(order_item)
-            messages.info(request, "This item quantity was updated.")
+            messages.info(request, "La cantidad del producto ha sido modificada.")
             return redirect("core:order-summary")
         else:
-            messages.info(request, "This item was not in your cart")
+            messages.info(request, "El producto no se encuentra en el carrito")
             return redirect("core:product", slug=slug)
     else:
-        messages.info(request, "You do not have an active order")
+        messages.info(request, "No tienes activa la orden")
         return redirect("core:product", slug=slug)
     
 
@@ -638,6 +654,10 @@ def remove_single_item_from_cart(request, slug):
 def condiciones(request):
     context = {}
     return render(request, "condiciones.html", context)
+    
+def politica(request):
+    context = {}
+    return render(request, "politica.html", context)
 
 @login_required
 def opinions(request):
@@ -737,7 +757,7 @@ class Send(View):
         if request.user.is_authenticated:
             usuario = request.user
         else:
-            usuario = User.objects.get(username = 'voldemort')
+            usuario = User.objects.get(username = 'anonymous')
         user = usuario
         user.delete()
         messages.success(request, 'El perfil ha sido borrado con éxito')
