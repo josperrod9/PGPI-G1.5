@@ -9,10 +9,11 @@ from django.utils import timezone
 from django.template.loader import get_template
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
-from .forms import CheckoutForm, PaymentForm,  UpdateUserForm, UpdateShippingAddressForm, OpinionCreateForm, ResponseCreateForm
+from .forms import CheckoutForm, PaymentForm,  UpdateUserForm, UpdateShippingAddressForm, OpinionCreateForm, ResponseCreateForm, ShippingMethodForm
 from .models import Item, OrderItem, Order, Address, Payment, UserProfile, Opinion, Response
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django_countries.fields import Country
 
 import random
 import string
@@ -98,7 +99,8 @@ def user_orders(request):
         'orders' : Order.objects.filter(ordered = True,user=user)
     }       
     return render(request,'ordersByUser.html', context)
-
+    
+    
  
 def update_shipping_address(request, order_id):
     if request.method == 'POST':
@@ -535,14 +537,37 @@ class OrderSummaryView(View):
         else:
             usuario = User.objects.get(username = 'anonymous')
         try:
+            form = ShippingMethodForm()
             order = Order.objects.get(user=usuario, ordered=False)
             context = {
-                    'object': order
+                    'object': order,
+                    'form':form
             }
             return render(self.request, 'order_summary.html', context)
         except ObjectDoesNotExist:
             messages.warning(self.request, "No tienes activo la orden")
             return redirect("/")
+
+    def post(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            usuario = self.request.user
+        else:
+            usuario = User.objects.get(username = 'anonymous')
+        form = ShippingMethodForm(self.request.POST or None)
+        try:
+            if form.is_valid:
+                order = Order.objects.get(user = usuario, ordered = False)
+                shippingoption = form.cleaned_data.get('shipping_option')
+                print(shippingoption)
+
+                order.shipping = shippingoption=='D'
+                if not(order.shipping):
+                    order.shipping_address = Address.objects.get(id=3)
+                order.save()
+                return redirect('/checkout/')
+        except:
+            messages.error(self.request, 'La dirección no se ha podido modificar')
+            return redirect('/order-summary/')
 
 
 class ItemDetailView(DetailView):

@@ -9,6 +9,11 @@ PAYMENT_CHOICES = (
     ('C', 'Contrareembolso')
 )
 
+SHIPPING_CHOICES = (
+    ('R', 'Recogida en tienda: Calle Avenida de la Reina Mercedes, 51'),
+    ('D', 'Envío a domicilio')
+)
+
 
 class CheckoutForm(forms.Form):
     email = forms.EmailField(required=True,
@@ -65,3 +70,7 @@ class OpinionCreateForm(forms.Form):
 
 class ResponseCreateForm(forms.Form):
     description = forms.CharField(required=True, label='Ponga aqui su respuesta', max_length=200, widget=forms.Textarea(attrs={'class': 'form-control'}))
+
+class ShippingMethodForm(forms.Form):
+    shipping_option = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=SHIPPING_CHOICES)

@@ -99,6 +99,7 @@ class Order(models.Model):
     received = models.BooleanField(default=False)
     payment_type = models.BooleanField(default=False)
     email = models.EmailField(max_length=254, blank=True)
+    shipping = models.BooleanField(blank=True, null=True)
 
 
     '''
@@ -127,7 +128,7 @@ class Address(models.Model):
                              on_delete=models.CASCADE)
     street_address = models.CharField(max_length=100)
     apartment_address = models.CharField(max_length=100)
-    country = CountryField(multiple=False)
+    country = CountryField(multiple=False,blank=True, null=True)
     zip = models.CharField(max_length=100)
     address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES)
     default = models.BooleanField(default=False)

@@ -44,6 +44,7 @@
             </td>
         </tr>
         {% endfor %}
+
         {% if object.get_total %}
         <tr>
             <td colspan="4"><b>Total del pedido</b></td>
@@ -51,14 +52,29 @@
         </tr>
         <tr>
             <td colspan="5">
-            <a class='btn btn-warning float-right ml-2' href='/checkout/'>Finalizar Compra</a>
-            <a class='btn btn-primary float-right' href='/'>Continuar Comprando</a>
+                <div>
+                <form method="POST">
+                {% csrf_token %}
+                    <div class="d-block my-3">
+                        {% for value, name in form.fields.shipping_option.choices %}
+                        <div class="custom-control custom-radio">
+                        <input id="{{ name }}" name="shipping_option" value="{{ value }}" type="radio"
+                            class="custom-control-input" required>
+                        <label class="custom-control-label" for="{{ name }}">{{ name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type='submit' class='btn btn-primary'>Finalizar compra</button>
+                </form>
+                 </div>
+
+                <a class='btn btn-primary float-right' href='/'>Continuar Comprando</a>
             </td>
         </tr>
         {% endif %}
         </tbody>
     </table>
-
+    
     </div>
 
     </div>
