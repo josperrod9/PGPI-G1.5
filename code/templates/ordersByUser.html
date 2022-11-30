@@ -28,10 +28,10 @@
                   <th scope="row">{{ order.ref_code }}</th>
                   <td>{{ order.ordered_date }}</td>
                   <td>{{ order.shipping_address.street_address }}</td>
-                  {% if order.received %}
-                  <td>Recibido</td>
+                  {% if order.statement == 'RB' %}
+                  <td>{{ order.get_statement_display}}</td>
                   {% else %}
-                  <td>Enviado</td>
+                  <td>{{ order.get_statement_display}}</td>
                   <td><button type="button" class="btn btn-primary"><a href="/user/orders/{{ order.id }}/edit">Editar Dirección de envío</a></button></td>
                   {% endif %}
                 </tr>

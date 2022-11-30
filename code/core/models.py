@@ -22,7 +22,14 @@ ADDRESS_CHOICES = (
     ('B', 'Billing'),
     ('S', 'Shipping'),
 )
-
+STATE_CHOICES = (
+    ('CF', 'Confirmado'),
+    ('EV', 'Enviado'),
+    ('EP', 'En preparacion'),
+    ('RB', 'Recibido'),
+    ('AN', 'Anulado'),
+    
+)
 
 class UserProfile(models.Model):
     user = models.OneToOneField(
@@ -97,8 +104,11 @@ class Order(models.Model):
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     being_delivered = models.BooleanField(default=False)
     received = models.BooleanField(default=False)
+    statement = models.CharField(choices=STATE_CHOICES, max_length=2,null=True, default='Confirmado')
     payment_type = models.BooleanField(default=False)
     email = models.EmailField(max_length=254, blank=True)
+    
+
 
 
     '''

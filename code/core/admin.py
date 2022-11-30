@@ -5,23 +5,17 @@ from .models import Item, OrderItem, Order, Payment, Address, UserProfile, Respo
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['user',
-                    'ordered',
-                    'being_delivered',
-                    'received',
+                    'statement',
                     'shipping_address',
-                    'billing_address',
                     'payment'
                 
                     ]
     list_display_links = [
         'user',
         'shipping_address',
-        'billing_address',
         'payment',
     ]
-    list_filter = ['ordered',
-                   'being_delivered',
-                   'received']
+    list_filter = ['statement']
     search_fields = [
         'user__username',
         'ref_code'
