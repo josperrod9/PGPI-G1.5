@@ -52,7 +52,23 @@
         </tr>
         <tr>
             <td colspan="5">
-                <div>
+                <!--<div>
+
+                form = ShippingMethodForm(self.request.POST or None)
+        try:
+            if form.is_valid:
+                order = Order.objects.get(user = usuario, ordered = False)
+                shippingoption = form.cleaned_data.get('shipping_option')
+                print(shippingoption)
+
+                order.shipping = shippingoption=='D'
+                if not(order.shipping):
+                    order.shipping_address = Address.objects.get(id=3)
+                order.save()
+                return redirect('/checkout/')
+        except:
+            messages.error(self.request, 'La dirección no se ha podido modificar')
+            return redirect('/order-summary/')
                 <form method="POST">
                 {% csrf_token %}
                     <div class="d-block my-3">
@@ -66,8 +82,8 @@
                     </div>
                     <button type='submit' class='btn btn-primary'>Finalizar compra</button>
                 </form>
-                 </div>
-
+                 </div>-->
+                <a class='btn btn-primary float-right' href='/checkout/'>Finalizar compra</a>
                 <a class='btn btn-primary float-right' href='/'>Continuar Comprando</a>
             </td>
         </tr>
