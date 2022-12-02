@@ -44,4 +44,3 @@ admin.site.register(Address, AddressAdmin)
 admin.site.register(Opinion)
 admin.site.register(Response)
 admin.site.unregister(Site)
-

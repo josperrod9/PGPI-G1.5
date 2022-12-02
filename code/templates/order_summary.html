@@ -44,6 +44,7 @@
             </td>
         </tr>
         {% endfor %}
+
         {% if object.get_total %}
         <tr>
             <td colspan="4"><b>Total del pedido</b></td>
@@ -51,14 +52,14 @@
         </tr>
         <tr>
             <td colspan="5">
-            <a class='btn btn-warning float-right ml-2' href='/checkout/'>Finalizar Compra</a>
-            <a class='btn btn-primary float-right' href='/'>Continuar Comprando</a>
+                <a class='btn btn-primary float-right' href='/checkout/'>Finalizar compra</a>
+                <a class='btn btn-primary float-right' href='/'>Continuar Comprando</a>
             </td>
         </tr>
         {% endif %}
         </tbody>
     </table>
-
+    
     </div>
 
     </div>

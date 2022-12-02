@@ -62,12 +62,21 @@
                 <label class="custom-control-label" for="{{ name }}">{{ name }}</label>
               </div>
               {% endfor %}
-              <input type="text" class="form-control" name="email" id="mce-EMAIL"
-              placeholder="Enter your email" required="required">
             </div>
-
+            <div class="d-block my-3">
+                {% for value, name in form.fields.shipping_option.choices %}
+                <div class="custom-control custom-radio">
+                <input id="{{ name }}" name="shipping_option" value="{{ value }}" type="radio"
+                    class="custom-control-input" required>
+                <label class="custom-control-label" for="{{ name }}">{{ name }}</label>
+                </div>
+                {% endfor %}
+            </div>
+            <input type="text" class="form-control" name="email" id="mce-EMAIL"
+              placeholder="Enter your email" required="required">
             <hr class="mb-4">
             <button class="btn btn-primary btn-lg btn-block" type="submit">Continuar con el checkout</button>
+
 
           </form>
 
@@ -89,24 +98,13 @@
 {% block extra_scripts %}
 <script>
   var hideable_shipping_form = $('.hideable_shipping_form');
-  var hideable_billing_form = $('.hideable_billing_form');
 
   var use_default_shipping = document.querySelector("input[name=use_default_shipping]");
-  var use_default_billing = document.querySelector("input[name=use_default_billing]");
-
   use_default_shipping.addEventListener('change', function () {
     if (this.checked) {
       hideable_shipping_form.hide();
     } else {
       hideable_shipping_form.show();
-    }
-  })
-
-  use_default_billing.addEventListener('change', function () {
-    if (this.checked) {
-      hideable_billing_form.hide();
-    } else {
-      hideable_billing_form.show();
     }
   })
 

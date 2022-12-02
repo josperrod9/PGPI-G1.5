@@ -38,6 +38,6 @@ urlpatterns = [
     path('opinions/<int:opinion_id>/', views.opinions_details,name="opinionDetails"),
     path('opinions/create/', views.create_opinion,name="opinionCreate"),
     path('opinions/<int:opinion_id>/addResponse/', views.createResponse,name="responseCreate"),
-    path('orders/' ,views.getOrderByRefCode ,name='ordersByRefCode')
+    path('orders/' ,views.getOrderByRefCode ,name='ordersByRefCode'),
 
 ]

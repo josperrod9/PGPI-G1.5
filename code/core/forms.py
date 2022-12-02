@@ -9,6 +9,11 @@ PAYMENT_CHOICES = (
     ('C', 'Contrareembolso')
 )
 
+SHIPPING_CHOICES = (
+    ('R', 'Recogida en tienda: Calle Avenida de la Reina Mercedes, 51'),
+    ('D', 'Envío a domicilio')
+)
+
 
 class CheckoutForm(forms.Form):
     email = forms.EmailField(required=True,
@@ -38,6 +43,8 @@ class CheckoutForm(forms.Form):
 
     payment_option = forms.ChoiceField(
         widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
+    shipping_option = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=SHIPPING_CHOICES)
 
 class PaymentForm(forms.Form):
     stripeToken = forms.CharField(required=False)

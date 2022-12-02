@@ -107,7 +107,7 @@ class Order(models.Model):
     statement = models.CharField(choices=STATE_CHOICES, max_length=2,null=True, default='Confirmado')
     payment_type = models.BooleanField(default=False)
     email = models.EmailField(max_length=254, blank=True)
-    
+    shipping = models.BooleanField(default=True, blank=True, null=True)
 
 
 
@@ -131,13 +131,22 @@ class Order(models.Model):
         
         return total
 
+    def is_shipping_cost(self):
+        return not(self.shipping) or self.get_total() > 50
+    
+    def get_final_price(self):
+        if self.is_shipping_cost():
+            return self.get_total()
+        else:
+            return self.get_total() + 3.99
+
 
 class Address(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     street_address = models.CharField(max_length=100)
     apartment_address = models.CharField(max_length=100)
-    country = CountryField(multiple=False)
+    country = CountryField(multiple=False, blank=True, null=True)
     zip = models.CharField(max_length=100)
     address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES)
     default = models.BooleanField(default=False)
