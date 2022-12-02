@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.template.loader import get_template
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
-from .forms import CheckoutForm, PaymentForm,  UpdateUserForm, UpdateShippingAddressForm, OpinionCreateForm, ResponseCreateForm, ShippingMethodForm
+from .forms import CheckoutForm, PaymentForm,  UpdateUserForm, UpdateShippingAddressForm, OpinionCreateForm, ResponseCreateForm
 from .models import Item, OrderItem, Order, Address, Payment, UserProfile, Opinion, Response
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -195,10 +195,6 @@ class CheckoutView(View):
                         shipping_address = address_qs[0]
                         order.shipping_address = shipping_address
                         order.save()
-                    else:
-                        messages.info(
-                            self.request, "No existe dirección de envío por")
-                        return redirect('core:checkout')
                 else:
                     shipping_address1 = form.cleaned_data.get(
                         'shipping_address')
@@ -228,10 +224,6 @@ class CheckoutView(View):
                             shipping_address.default = True
                             shipping_address.save()
 
-                    else:
-                        messages.info(
-                            self.request, "Por favor, completa los datos de la dirección de envío")
-
                 use_default_billing = form.cleaned_data.get(
                     'use_default_billing')
                 same_billing_address = form.cleaned_data.get(
@@ -257,10 +249,6 @@ class CheckoutView(View):
                         billing_address = address_qs[0]
                         order.billing_address = billing_address
                         order.save()
-                    else:
-                        messages.info(
-                            self.request, "No existe dirección de facturación por defecto")
-                        return redirect('core:checkout')
                 else:
                     print("User is entering a new billing address")
                     billing_address1 = form.cleaned_data.get(
@@ -291,14 +279,21 @@ class CheckoutView(View):
                             billing_address.default = True
                             billing_address.save()
 
-                    else:
-                        messages.info(
-                            self.request, "Por favor, rellena los datos de facturación")
-                        return redirect('core:checkout')
-
                 payment_option = form.cleaned_data.get('payment_option')
                 email = form.cleaned_data.get('email')
+                shippingoption = form.cleaned_data.get('shipping_option')
                 order.email = email
+                order.shipping = shippingoption=='D'
+                if not(order.shipping):
+                    shipping_address_supermarket = Address(
+                            user=usuario,
+                            street_address="recogida en tienda",
+                            apartment_address="recogida en tienda",
+                            zip="-",
+                            address_type='B')
+                    shipping_address_supermarket.save()
+                    order.shipping_address = shipping_address_supermarket
+                    order.save()
                 if payment_option == 'S':
                     order.payment_type = False
                     order.save()
@@ -311,6 +306,8 @@ class CheckoutView(View):
                     messages.warning(
                         self.request, "Opción de pago seleccionada incorrecta")
                     return redirect('core:checkout')
+                
+                
         except ObjectDoesNotExist:
             messages.warning(self.request, "No puedes realizar la acción seleccionada, no está activa")
             return redirect("core:order-summary")
@@ -537,11 +534,9 @@ class OrderSummaryView(View):
         else:
             usuario = User.objects.get(username = 'anonymous')
         try:
-            form = ShippingMethodForm()
             order = Order.objects.get(user=usuario, ordered=False)
             context = {
-                    'object': order,
-                    'form':form
+                    'object': order
             }
             return render(self.request, 'order_summary.html', context)
         except ObjectDoesNotExist:

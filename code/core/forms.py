@@ -43,6 +43,8 @@ class CheckoutForm(forms.Form):
 
     payment_option = forms.ChoiceField(
         widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
+    shipping_option = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=SHIPPING_CHOICES)
 
 class PaymentForm(forms.Form):
     stripeToken = forms.CharField(required=False)
@@ -70,7 +72,3 @@ class OpinionCreateForm(forms.Form):
 
 class ResponseCreateForm(forms.Form):
     description = forms.CharField(required=True, label='Ponga aqui su respuesta', max_length=200, widget=forms.Textarea(attrs={'class': 'form-control'}))
-
-class ShippingMethodForm(forms.Form):
-    shipping_option = forms.ChoiceField(
-        widget=forms.RadioSelect, choices=SHIPPING_CHOICES)
