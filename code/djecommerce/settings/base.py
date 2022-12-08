@@ -23,7 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'reset_migrations',
     'django.contrib.sites',
     'allauth',
     'crispy_forms',
